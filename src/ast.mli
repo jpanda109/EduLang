@@ -1,5 +1,12 @@
-type ast =
-  | Program of statement list
+type program = 
+  { main: statement list;
+    funcs: funcdef list
+  }
+
+and funcdef =
+  { params: string list;
+    statements: statement list
+  }
 
 and statement =
   | Print of expr
@@ -8,6 +15,7 @@ and statement =
 and expr =
   | Val of value
   | Var of string
+  | Funccall of string * expr list
 
 and value =
   | Num of int

@@ -5,6 +5,7 @@ open Lexer
 open Ast
 
 exception Unbound_variable of string
+exception Unbound_function of string
 
 let print_position outc lexbuf =
   let pos = lexbuf.lex_curr_p in
@@ -23,9 +24,11 @@ let parse_with_error lexbuf =
 let eval_expr ctx = function
   | Val v -> v
   | Var s -> 
-    match Map.find ctx s with
+    begin match Map.find ctx s with
     | None -> raise (Unbound_variable s)
     | Some x -> x
+    end
+  | Funccall (name, params) -> raise (Unbound_function name)
 
 let eval_statement ctx = function
   | Assign (s, expr) ->
@@ -40,8 +43,8 @@ let rec eval_prog ctx = function
   | hd::tl -> eval_prog (eval_statement ctx hd) tl
   | [] -> ()
 
-let eval_ast ctx = function
-  | Program ss -> eval_prog ctx ss
+let eval_ast ctx prog =
+  eval_prog ctx prog.main
 
 let () =
   let contents = In_channel.read_all "test.edl" in

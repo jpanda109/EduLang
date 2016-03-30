@@ -15,12 +15,14 @@ let next_line lexbuf =
 let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 let main = "main"
+let funcdef = "fun"
 let print = "print"
 let num = ['0'-'9']+
-let var = ['a'-'z' 'A'-'Z' '_' '-']+
+let id = ['a'-'z' 'A'-'Z' '_' '-']+
 let str = '"'_*'"'
 let assign = ":="
 let semicolon = ';'
+let comma = ','
 let lparen = '('
 let rparen = ')'
 let lbrace = '{'
@@ -31,15 +33,17 @@ rule read =
   | white { read lexbuf }
   | newline { next_line lexbuf; read lexbuf }
   | main { MAIN }
+  | funcdef { FUNCDEF }
   | print { PRINT }
   | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
-  | var { VAR (Lexing.lexeme lexbuf) }
+  | id { ID (Lexing.lexeme lexbuf) }
   | str { 
       let s = Lexing.lexeme lexbuf in
       STR (String.sub s 1 ((String.length s) - 2))
     }
   | assign { ASSIGN }
   | semicolon { SEMICOLON }
+  | comma { COMMA }
   | lparen { LPAREN }
   | rparen { RPAREN }
   | lbrace { LBRACE }
