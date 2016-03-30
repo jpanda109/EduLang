@@ -18,6 +18,7 @@ let main = "main"
 let print = "print"
 let num = ['0'-'9']+
 let var = ['a'-'z' 'A'-'Z' '_' '-']+
+let str = '"'_*'"'
 let assign = ":="
 let semicolon = ';'
 let lparen = '('
@@ -33,6 +34,10 @@ rule read =
   | print { PRINT }
   | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
   | var { VAR (Lexing.lexeme lexbuf) }
+  | str { 
+      let s = Lexing.lexeme lexbuf in
+      STR (String.sub s 1 ((String.length s) - 2))
+    }
   | assign { ASSIGN }
   | semicolon { SEMICOLON }
   | lparen { LPAREN }

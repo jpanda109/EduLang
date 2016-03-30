@@ -18,11 +18,40 @@ let parse_with_error lexbuf =
     fprintf stdout "%a: syntax error\n" print_position lexbuf;
     None
 
+let print_expr = function
+  | Num n ->
+    print_string "Num(";
+    print_string (string_of_int n);
+    print_string ")"
+  | Var v ->
+    print_string "Var(";
+    print_string v;
+    print_string ")"
+
+let print_statement = function
+  | Assign (s, expr) ->
+    print_string "Assign(";
+    print_string s;
+    print_string ",";
+    print_expr expr;
+    print_string ")"
+  | Print expr ->
+    print_string "Print(";
+    print_expr expr;
+    print_string ")"
+
+let print_ast = function
+  | Program statements -> 
+    print_string "Program([";
+    List.iteri ~f:(fun i v ->
+      if i > 0 then print_string ", ";
+      print_statement v) statements;
+    print_string "])\n"
+
 let () =
   let contents = In_channel.read_all "test.edl" in
   let lexbuf = Lexing.from_string contents in
-
   begin match parse_with_error lexbuf with
-    | Some p -> print_endline("success")
+    | Some p -> print_ast(p)
     | None -> print_endline("failure")
   end

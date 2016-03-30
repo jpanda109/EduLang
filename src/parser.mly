@@ -7,6 +7,7 @@
 %token MAIN
 %token PRINT
 %token <string> VAR
+%token <string> STR
 %token ASSIGN
 %token LBRACE
 %token RBRACE
@@ -30,7 +31,8 @@ statement:
   ;
 
 expression:
-  | n = NUM { Num n }
+  | n = NUM { Val (Num n) }
   | v = VAR { Var v }
+  | s = STR { Val (String s) }
   ;
 
