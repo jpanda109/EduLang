@@ -6,6 +6,7 @@ open Ast
 
 exception Unbound_variable of string
 exception Unbound_function of string
+exception Unimplemented of string
 
 let print_position outc lexbuf =
   let pos = lexbuf.lex_curr_p in
@@ -22,29 +23,35 @@ let parse_with_error lexbuf =
     None
 
 let eval_expr ctx = function
-  | Val v -> v
-  | Var s -> 
+  | Expression.Val v -> v
+  | Expression.Var s -> 
     begin match Map.find ctx s with
     | None -> raise (Unbound_variable s)
     | Some x -> x
     end
-  | Funccall (name, params) -> raise (Unbound_function name)
+  | Expression.Funccall (name, params) -> raise (Unbound_function name)
 
 let eval_statement ctx = function
-  | Assign (s, expr) ->
+  | Statement.Assign (s, expr) ->
     Map.add ctx ~key:s ~data:(eval_expr ctx expr)
-  | Print expr -> 
+  | Statement.Print expr -> 
     begin match eval_expr ctx expr with
-    | Num n -> print_endline (string_of_int n)
-    | String s -> print_endline s
+    | Value.Num n -> print_endline (string_of_int n)
+    | Value.String s -> print_endline s
     end; ctx
+  | Statement.If (expr, statements) ->
+    raise (Unimplemented "If")
+  | Statement.Ifelse (expr, if_st, else_st) ->
+    raise (Unimplemented "Ifelse")
+  | Statement.Funccall (name, exprs) ->
+    raise (Unimplemented "Funccall")
 
 let rec eval_prog ctx = function
   | hd::tl -> eval_prog (eval_statement ctx hd) tl
   | [] -> ()
 
 let eval_ast ctx prog =
-  eval_prog ctx prog.main
+  eval_prog ctx prog.Program.main
 
 let () =
   let contents = In_channel.read_all "test.edl" in

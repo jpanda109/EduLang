@@ -6,6 +6,8 @@
 %token <int> NUM
 %token MAIN
 %token FUNCDEF
+%token IF
+%token ELSE
 %token PRINT
 %token <string> ID
 %token <string> STR
@@ -18,11 +20,11 @@
 %token RPAREN
 %token EOF
 
-%start <Ast.program> prog
+%start <Ast.Program.t> prog
 
 %%
 prog:
-  defs1 = list(funcdef) ;MAIN; LBRACE; ss = statements; RBRACE; defs2 = list(funcdef); EOF; 
+  defs1 = list(funcdef); MAIN; LBRACE; ss = statements; RBRACE; defs2 = list(funcdef); EOF; 
     { { main = ss; funcs = defs1 @ defs2 } } ;
 
 funcdef:
@@ -33,15 +35,20 @@ statements:
   s_list = list(statement)            { s_list } ;
 
 statement:
-  | v = ID; ASSIGN; e = expression; SEMICOLON { Assign (v, e) }
-  | PRINT; LPAREN; e = expression; RPAREN; SEMICOLON             { Print e }
+  | v = ID; ASSIGN; e = expression; SEMICOLON { Statement.Assign (v, e) }
+  | PRINT; LPAREN; e = expression; RPAREN; SEMICOLON             { Statement.Print e }
+  | IF; e1 = expression; LBRACE; s1 = statements; RBRACE; ELSE; LBRACE; s2 = statements; RBRACE 
+    { Ifelse (e1, s1, s2) }
+  | IF; e = expression; LBRACE; ss = statements; RBRACE { Statement.If (e, ss) }
+  | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN 
+    { Statement.Funccall (name, params) }
   ;
 
 expression:
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN 
-    { Funccall (name, params) }
-  | n = NUM { Val (Num n) }
-  | v = ID { Var v }
-  | s = STR { Val (String s) }
+    { Expression.Funccall (name, params) }
+  | n = NUM { Expression.Val (Num n) }
+  | s = STR { Expression.Val (String s) }
+  | v = ID { Expression.Var v }
   ;
 
