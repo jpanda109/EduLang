@@ -1,7 +1,12 @@
+func deez() {
+print(same);
+}
+
 main {
-	x := 1;
-	print(x);
-	y := "hello world";
-	print(y);
-	print(5);
+x := 1;
+print(x);
+y := "hello world";
+print(y);
+print(5);
+deez();
 }
