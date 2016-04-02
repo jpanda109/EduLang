@@ -1,6 +1,6 @@
 module Value = struct
   type t =
-    | Num of int
+    | Num of Number.t
     | String of string
     | None
 end

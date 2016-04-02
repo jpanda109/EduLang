@@ -97,6 +97,7 @@ and eval_chunk ctx = function
   | [] -> Value.None
 
 and eval_ast ctx prog =
+  let ctx = List.fold ~init:Context.empty ~f:(fun c f -> Context.add_func c f.Funcdef.name f) prog.Program.funcs in
   ignore (eval_chunk ctx prog.Program.main)
 
 let () =

@@ -1,12 +1,13 @@
 func deez() {
-print(same);
+	x := 4;
+	print(x);
 }
 
 main {
-x := 1;
-print(x);
-y := "hello world";
-print(y);
-print(5);
-deez();
+	x := 3;
+	print(x);
+	print("no world");
+	print("no world");
+	print(5);
+	deez();
 }
