@@ -41,7 +41,7 @@ statement:
     { Ifelse (e1, s1, s2) }
   | IF; e = expression; LBRACE; ss = statements; RBRACE { Statement.If (e, ss) }
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN; SEMICOLON
-    { Statement.Funccall (name, params) }
+    { Statement.Funccall {name = name; params = params} }
   ;
 
 returnstat:
@@ -49,7 +49,7 @@ returnstat:
 
 expression:
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN 
-    { Expression.Funccall (name, params) }
+    { Expression.Funccall {name = name; params = params} }
   | n = NUM { Expression.Val (Num n) }
   | s = STR { Expression.Val (String s) }
   | v = ID { Expression.Var v }

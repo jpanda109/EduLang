@@ -76,7 +76,8 @@ and eval_expr ctx = function
     | None -> raise (Unbound_variable s)
     | Some x -> x
     end
-  | Expression.Funccall (name, params) -> eval_func ctx name params
+  | Expression.Funccall {Funccall.name = name; Funccall.params = params} -> 
+    eval_func ctx name params
 
 and eval_statement ctx = function
   | Statement.Assign (s, expr) ->
@@ -85,7 +86,8 @@ and eval_statement ctx = function
     raise (Unimplemented "If")
   | Statement.Ifelse (expr, if_st, else_st) ->
     raise (Unimplemented "Ifelse")
-  | Statement.Funccall (name, exprs) -> ignore (eval_func ctx name exprs); ctx
+  | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
+    ignore (eval_func ctx name exprs); ctx
   | Statement.Return expr -> raise (Unimplemented "Return")
 
 and eval_chunk ctx = function

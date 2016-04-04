@@ -1,39 +1,46 @@
-module Value = struct
+module rec Value : sig
   type t =
     | Num of Number.t
     | String of string
     | None
-end
+end = Value
 
-module Expression = struct
+and Expression : sig 
   type t =
     | Val of Value.t
     | Var of string
-    | Funccall of string * t list
-end
+    | Funccall of Funccall.t
+end = Expression
 
-module Statement = struct
+and Statement : sig
   type t =
     | If of Expression.t * t list
     | Ifelse of Expression.t * t list * t list
     | Assign of string * Expression.t
-    | Funccall of string * Expression.t list
+    | Funccall of Funccall.t
     | Return of Expression.t
-end
+end = Statement
 
-module Funcdef = struct
+and Funccall : sig
+  type t =
+    { name: string;
+      params: Expression.t list
+    }
+end = Funccall
+
+and Funcdef : sig
   type t =
     { name: string;
       params: string list;
       statements: Statement.t list
     }
-end
+end = Funcdef
 
-module Program = struct
+and Program : sig
   type t =
     { main: Statement.t list;
       funcs: Funcdef.t list
     }
-end
+end = Program
 
 
