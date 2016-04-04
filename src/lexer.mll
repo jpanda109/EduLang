@@ -16,7 +16,7 @@ let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 let main = "main"
 let funcdef = "func"
-let num = ['0'-'9']+
+let num = ['0'-'9']+'.'?['0'-'9']*
 let id = ['a'-'z' 'A'-'Z' '_' '-']+
 let assign = ":="
 let return = "return"
@@ -33,7 +33,7 @@ rule read =
   | newline { new_line lexbuf; read lexbuf }
   | main { MAIN }
   | funcdef { FUNCDEF }
-  | num { NUM (int_of_string (Lexing.lexeme lexbuf)) }
+  | num { NUM (Lexing.lexeme lexbuf) }
   | id { ID (Lexing.lexeme lexbuf) }
   | assign { ASSIGN }
   | return { RETURN }

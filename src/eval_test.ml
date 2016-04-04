@@ -54,7 +54,7 @@ let rec eval_func ctx name params =
     begin match List.nth params 0 with
       | None -> raise (Unbound_function "wrong number of params")
       | Some v -> begin match v with
-          | Value.Num n -> print_endline (string_of_int n); Value.None
+          | Value.Num n -> print_endline (Number.string_of_number n); Value.None
           | Value.String s -> print_endline s; Value.None
           | Value.None -> print_endline "None"; Value.None
         end

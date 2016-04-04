@@ -3,7 +3,7 @@
   open Ast
 
 %}
-%token <int> NUM
+%token <string> NUM
 %token MAIN
 %token FUNCDEF
 %token IF
@@ -50,7 +50,7 @@ returnstat:
 expression:
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN 
     { Expression.Funccall {name = name; params = params} }
-  | n = NUM { Expression.Val (Num n) }
+  | n = NUM { Expression.Val (Num (Number.number_of_string n)) }
   | s = STR { Expression.Val (String s) }
   | v = ID { Expression.Var v }
   ;
