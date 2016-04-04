@@ -9,5 +9,6 @@ main {
 	print("no world");
 	print("no world");
 	print(5);
+	print(5.3);
 	deez();
 }
