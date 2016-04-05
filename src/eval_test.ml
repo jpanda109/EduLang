@@ -78,6 +78,10 @@ and eval_expr ctx = function
     end
   | Expression.Funccall {Funccall.name = name; Funccall.params = params} -> 
     eval_func ctx name params
+  | Expression.Plus (n1, n2) -> raise (Unbound_function "Plus")
+  | Expression.Minus (n1, n2) -> raise (Unbound_function "Minus")
+  | Expression.Mult (n1, n2) -> raise (Unbound_function "Mult")
+  | Expression.Div (n1, n2) -> raise (Unbound_function "Div")
 
 and eval_statement ctx = function
   | Statement.Assign (s, expr) ->

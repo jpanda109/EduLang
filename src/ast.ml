@@ -10,6 +10,10 @@ and Expression : sig
     | Val of Value.t
     | Var of string
     | Funccall of Funccall.t
+    | Plus of t * t
+    | Minus of t * t
+    | Mult of t * t
+    | Div of t * t
 end = Expression
 
 and Statement : sig

@@ -18,6 +18,10 @@
 %token RBRACE
 %token LPAREN
 %token RPAREN
+%token PLUS
+%token MINUS
+%token MULT
+%token DIV
 %token EOF
 
 %start <Ast.Program.t> prog
@@ -45,11 +49,19 @@ statement:
   ;
 
 returnstat:
-  RETURN; e = expression; SEMICOLON { Statement.Return e }
+  RETURN; e = expression; SEMICOLON { Statement.Return e } ;
 
 expression:
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN 
     { Expression.Funccall {name = name; params = params} }
+  | e1 = expression; PLUS; e2 = expression 
+    { Expression.Plus (e1, e2) }
+  | e1 = expression; MINUS; e2 = expression 
+    { Expression.Minus (e1, e2) }
+  | e1 = expression; MULT; e2 = expression 
+    { Expression.Mult (e1, e2) }
+  | e1 = expression; DIV; e2 = expression 
+    { Expression.Div (e1, e2) }
   | n = NUM { Expression.Val (Num (Number.number_of_string n)) }
   | s = STR { Expression.Val (String s) }
   | v = ID { Expression.Var v }

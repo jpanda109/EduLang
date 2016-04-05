@@ -26,6 +26,10 @@ let lparen = '('
 let rparen = ')'
 let lbrace = '{'
 let rbrace = '}'
+let plus = '+'
+let minus = '-'
+let mult = '*'
+let div = '/'
 
 rule read =
   parse
@@ -44,6 +48,10 @@ rule read =
   | rparen { RPAREN }
   | lbrace { LBRACE }
   | rbrace { RBRACE }
+  | plus { PLUS }
+  | minus { MINUS }
+  | mult { MULT }
+  | div { DIV }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof { EOF }
 and read_string buf =
