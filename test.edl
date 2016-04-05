@@ -3,6 +3,10 @@ func deez() {
 	print(x);
 }
 
+func r() {
+	return 5;
+}
+
 main {
 	x := 3;
 	print(x);
@@ -12,4 +16,5 @@ main {
 	print(5.3);
 	deez();
 	print(4*5);
+	print(r());
 }

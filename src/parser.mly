@@ -36,7 +36,7 @@ funcdef:
     { {name = name; params = params; statements = ss} } ;
 
 statements:
-  | s_list = list(statement); rstat = returnstat { s_list@[rstat] }
+  | s_list = list(statement); rstat = returnstat            { s_list@[rstat] } ;
   | s_list = list(statement)            { s_list } ;
 
 statement:

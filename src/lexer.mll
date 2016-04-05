@@ -16,10 +16,10 @@ let white = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 let main = "main"
 let funcdef = "func"
+let return = "return"
 let num = ['0'-'9']+'.'?['0'-'9']*
 let id = ['a'-'z' 'A'-'Z' '_' '-']+
 let assign = ":="
-let return = "return"
 let semicolon = ';'
 let comma = ','
 let lparen = '('
@@ -37,10 +37,10 @@ rule read =
   | newline { new_line lexbuf; read lexbuf }
   | main { MAIN }
   | funcdef { FUNCDEF }
+  | return { RETURN }
   | num { NUM (Lexing.lexeme lexbuf) }
   | id { ID (Lexing.lexeme lexbuf) }
   | assign { ASSIGN }
-  | return { RETURN }
   | semicolon { SEMICOLON }
   | comma { COMMA }
   | '"' { read_string (Buffer.create 17) lexbuf }
