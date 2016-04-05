@@ -6,12 +6,13 @@
 %token <string> NUM
 %token MAIN
 %token FUNCDEF
+%token RETURN
 %token IF
 %token ELSE
 %token <string> ID
 %token <string> STR
 %token ASSIGN
-%token RETURN
+%token <string> BOOL
 %token SEMICOLON
 %token COMMA
 %token LBRACE
@@ -22,6 +23,8 @@
 %token MINUS
 %token MULT
 %token DIV
+%token EQUALITY
+%token INEQUALITY
 %token EOF
 
 %start <Ast.Program.t> prog
@@ -62,8 +65,13 @@ expression:
     { Expression.Mult (e1, e2) }
   | e1 = expression; DIV; e2 = expression 
     { Expression.Div (e1, e2) }
+  | e1 = expression; EQUALITY; e2 = expression
+    { Expression.Equality (e1, e2) }
+  | e1 = expression; INEQUALITY; e2 = expression
+    { Expression.Inequality (e1, e2) }
   | n = NUM { Expression.Val (Num (Number.number_of_string n)) }
   | s = STR { Expression.Val (String s) }
   | v = ID { Expression.Var v }
+  | b = BOOL { Expression.Val (Bool (bool_of_string b)) }
   ;
 

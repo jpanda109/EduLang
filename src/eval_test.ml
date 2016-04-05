@@ -56,6 +56,7 @@ let rec eval_func ctx name params =
       | Some v -> begin match v with
           | Value.Num n -> print_endline (Number.string_of_number n); Value.None
           | Value.String s -> print_endline s; Value.None
+          | Value.Bool b -> print_endline (string_of_bool b); Value.None
           | Value.None -> print_endline "None"; Value.None
         end
     end
@@ -70,11 +71,17 @@ let rec eval_func ctx name params =
     end
 
 and eval_expr ctx = 
-  let eval_arith f e1 e2=
+  let eval_arith f e1 e2 =
     match (eval_expr ctx e1, eval_expr ctx e2) with
       | (Value.Num n1, Value.Num n2) -> Value.Num (f n1 n2)
-      | _ -> raise (Failure "arithmetic on non-number")
-    in
+      | _ -> raise (Failure "arithmetic on non-number") in
+  let compare e1 e2 =
+    match (eval_expr ctx e1, eval_expr ctx e2) with
+    | (Value.Num n1, Value.Num n2) -> n1 = n2
+    | (Value.String s1, Value.String s2) -> s1 = s2
+    | (Value.Bool b1, Value.Bool b2) -> b1 = b2
+    | (Value.None, Value.None) -> true
+    | _ -> raise (Failure "equality between different types") in
   function
   | Expression.Val v -> v
   | Expression.Var s -> 
@@ -88,6 +95,8 @@ and eval_expr ctx =
   | Expression.Minus (e1, e2) -> eval_arith Number.sub e1 e2
   | Expression.Mult (e1, e2) -> eval_arith Number.mult e1 e2 
   | Expression.Div (e1, e2) -> eval_arith Number.div e1 e2
+  | Expression.Equality (e1, e2) -> Value.Bool (compare e1 e2)
+  | Expression.Inequality (e1, e2) -> Value.Bool (not (compare e1 e2))
 
 and eval_statement ctx = function
   | Statement.Assign (s, expr) ->

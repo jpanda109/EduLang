@@ -2,6 +2,7 @@ module rec Value : sig
   type t =
     | Num of Number.t
     | String of string
+    | Bool of bool
     | None
 end = Value
 
@@ -14,6 +15,8 @@ and Expression : sig
     | Minus of t * t
     | Mult of t * t
     | Div of t * t
+    | Equality of t * t
+    | Inequality of t * t
 end = Expression
 
 and Statement : sig

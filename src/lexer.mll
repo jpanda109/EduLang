@@ -1,57 +1,35 @@
 {
 open Lexing
 open Parser
-
 exception SyntaxError of string
-
-let next_line lexbuf =
-  let pos = lexbuf.lex_curr_p in
-  lexbuf.lex_curr_p <-
-    { pos with pos_bol = lexbuf.lex_curr_pos;
-               pos_lnum = pos.pos_lnum + 1
-    }
 }
 
-let white = [' ' '\t']+
-let newline = '\r' | '\n' | "\r\n"
-let main = "main"
-let funcdef = "func"
-let return = "return"
-let num = ['0'-'9']+'.'?['0'-'9']*
-let id = ['a'-'z' 'A'-'Z' '_' '-']+
-let assign = ":="
-let semicolon = ';'
-let comma = ','
-let lparen = '('
-let rparen = ')'
-let lbrace = '{'
-let rbrace = '}'
-let plus = '+'
-let minus = '-'
-let mult = '*'
-let div = '/'
 
 rule read =
   parse
-  | white { read lexbuf }
-  | newline { new_line lexbuf; read lexbuf }
-  | main { MAIN }
-  | funcdef { FUNCDEF }
-  | return { RETURN }
-  | num { NUM (Lexing.lexeme lexbuf) }
-  | id { ID (Lexing.lexeme lexbuf) }
-  | assign { ASSIGN }
-  | semicolon { SEMICOLON }
-  | comma { COMMA }
+  | [' ' '\t']+ { read lexbuf }
+  | '\r' | '\n' | "\r\n" { new_line lexbuf; read lexbuf }
+  | "main" { MAIN }
+  | "func" { FUNCDEF }
+  | "return" { RETURN }
+  | "true" { BOOL (Lexing.lexeme lexbuf) }
+  | "false" { BOOL (Lexing.lexeme lexbuf) }
+  | ['0'-'9']+'.'?['0'-'9']* { NUM (Lexing.lexeme lexbuf) }
+  | ['a'-'z' 'A'-'Z' '_' '-']+ { ID (Lexing.lexeme lexbuf) }
+  | ":=" { ASSIGN }
+  | ';' { SEMICOLON }
+  | ',' { COMMA }
+  | '(' { LPAREN }
+  | ')' { RPAREN }
+  | '{' { LBRACE }
+  | '}' { RBRACE }
+  | '+' { PLUS }
+  | '-' { MINUS }
+  | '*' { MULT }
+  | '/' { DIV }
+  | "==" { EQUALITY }
+  | "!=" { INEQUALITY }
   | '"' { read_string (Buffer.create 17) lexbuf }
-  | lparen { LPAREN }
-  | rparen { RPAREN }
-  | lbrace { LBRACE }
-  | rbrace { RBRACE }
-  | plus { PLUS }
-  | minus { MINUS }
-  | mult { MULT }
-  | div { DIV }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof { EOF }
 and read_string buf =
