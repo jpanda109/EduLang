@@ -69,7 +69,13 @@ let rec eval_func ctx name params =
     | None -> raise (Unbound_function name)
     end
 
-and eval_expr ctx = function
+and eval_expr ctx = 
+  let eval_arith f e1 e2=
+    match (eval_expr ctx e1, eval_expr ctx e2) with
+      | (Value.Num n1, Value.Num n2) -> Value.Num (f n1 n2)
+      | _ -> raise (Failure "arithmetic on non-number")
+    in
+  function
   | Expression.Val v -> v
   | Expression.Var s -> 
     begin match Context.find_var ctx s with
@@ -78,10 +84,10 @@ and eval_expr ctx = function
     end
   | Expression.Funccall {Funccall.name = name; Funccall.params = params} -> 
     eval_func ctx name params
-  | Expression.Plus (n1, n2) -> raise (Unbound_function "Plus")
-  | Expression.Minus (n1, n2) -> raise (Unbound_function "Minus")
-  | Expression.Mult (n1, n2) -> raise (Unbound_function "Mult")
-  | Expression.Div (n1, n2) -> raise (Unbound_function "Div")
+  | Expression.Plus (e1, e2) -> eval_arith Number.add e1 e2
+  | Expression.Minus (e1, e2) -> eval_arith Number.sub e1 e2
+  | Expression.Mult (e1, e2) -> eval_arith Number.mult e1 e2 
+  | Expression.Div (e1, e2) -> eval_arith Number.div e1 e2
 
 and eval_statement ctx = function
   | Statement.Assign (s, expr) ->

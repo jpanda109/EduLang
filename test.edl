@@ -11,4 +11,5 @@ main {
 	print(5);
 	print(5.3);
 	deez();
+	print(4*5);
 }
