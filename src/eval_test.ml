@@ -65,7 +65,7 @@ let rec eval_func ctx name params =
     | Some fdef ->
       let (param_names, statements) = (fdef.Funcdef.params, fdef.Funcdef.statements) in
       if (List.length param_names = List.length params)
-      then eval_chunk (scoped_context ctx param_names params) statements
+      then (snd (eval_chunk (scoped_context ctx param_names params) statements))
       else raise (Unbound_function name)
     | None -> raise (Unbound_function name)
     end
@@ -100,22 +100,22 @@ and eval_expr ctx =
 
 and eval_statement ctx = function
   | Statement.Assign (s, expr) ->
-    Context.add_var ctx ~key:s ~data:(eval_expr ctx expr)
+    (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
   | Statement.If (expr, statements) ->
     raise (Unimplemented "If")
   | Statement.Ifelse (expr, if_st, else_st) ->
     raise (Unimplemented "Ifelse")
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
-    ignore (eval_func ctx name exprs); ctx
-  | Statement.Return expr -> raise (Unimplemented "Return")
+    ignore (eval_func ctx name exprs); (ctx, None)
+  | Statement.Return expr -> (ctx, Some (eval_expr ctx expr))
 
 and eval_chunk ctx = function
   | st::tl ->
-    begin match st with
-    | Statement.Return expr -> eval_expr ctx expr
-    | _ -> eval_chunk (eval_statement ctx st) tl
+    begin match eval_statement ctx st with
+    | (new_ctx, Some retval) -> (new_ctx, retval)
+    | (new_ctx, None) -> eval_chunk new_ctx tl
     end
-  | [] -> Value.None
+  | [] -> (ctx, Value.None)
 
 and eval_ast ctx prog =
   let ctx = List.fold ~init:Context.empty ~f:(fun c f -> Context.add_func c f.Funcdef.name f) prog.Program.funcs in
