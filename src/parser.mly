@@ -44,12 +44,14 @@ statements:
 
 statement:
   | v = ID; ASSIGN; e = expression; SEMICOLON { Statement.Assign (v, e) }
-  | IF; e1 = expression; LBRACE; s1 = statements; RBRACE; ELSE; LBRACE; s2 = statements; RBRACE 
-    { Ifelse (e1, s1, s2) }
-  | IF; e = expression; LBRACE; ss = statements; RBRACE { Statement.If (e, ss) }
+  | IF; e1 = expression; LBRACE; ss = statements; RBRACE; es = option(else_block)
+    { Ifelse (e1, ss, es) }
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN; SEMICOLON
     { Statement.Funccall {name = name; params = params} }
   ;
+
+else_block:
+  ELSE; LBRACE; ss = statements; RBRACE { ss };
 
 returnstat:
   RETURN; e = expression; SEMICOLON { Statement.Return e } ;

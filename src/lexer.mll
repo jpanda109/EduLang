@@ -14,6 +14,8 @@ rule read =
   | "return" { RETURN }
   | "true" { BOOL (Lexing.lexeme lexbuf) }
   | "false" { BOOL (Lexing.lexeme lexbuf) }
+  | "if" { IF }
+  | "else" { ELSE }
   | ['0'-'9']+'.'?['0'-'9']* { NUM (Lexing.lexeme lexbuf) }
   | ['a'-'z' 'A'-'Z' '_' '-']+ { ID (Lexing.lexeme lexbuf) }
   | ":=" { ASSIGN }
