@@ -6,7 +6,7 @@ module rec Value : sig
     | None
 end = Value
 
-and Expression : sig 
+and Expr : sig 
   type t =
     | Val of Value.t
     | Var of string
@@ -17,21 +17,25 @@ and Expression : sig
     | Div of t * t
     | Equality of t * t
     | Inequality of t * t
-end = Expression
+    | LTEQ of t * t
+    | GTEQ of t * t
+    | LT of t * t
+    | GT of t * t
+end = Expr
 
 and Statement : sig
   type t =
-    | Ifelse of Expression.t * t list * t list option
-    | While of Expression.t * t list
-    | Assign of string * Expression.t
+    | Ifelse of Expr.t * t list * t list option
+    | While of Expr.t * t list
+    | Assign of string * Expr.t
     | Funccall of Funccall.t
-    | Return of Expression.t
+    | Return of Expr.t
 end = Statement
 
 and Funccall : sig
   type t =
     { name: string;
-      params: Expression.t list
+      params: Expr.t list
     }
 end = Funccall
 

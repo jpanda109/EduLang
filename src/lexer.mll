@@ -32,6 +32,10 @@ rule read =
   | '/' { DIV }
   | "==" { EQUALITY }
   | "!=" { INEQUALITY }
+  | "<=" { LTEQ }
+  | ">=" { GTEQ }
+  | "<" { LT }
+  | ">" {GT}
   | '"' { read_string (Buffer.create 17) lexbuf }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof { EOF }

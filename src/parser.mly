@@ -26,6 +26,10 @@
 %token DIV
 %token EQUALITY
 %token INEQUALITY
+%token LTEQ
+%token GTEQ
+%token LT
+%token GT
 %token EOF
 
 %start <Ast.Program.t> prog
@@ -44,12 +48,12 @@ statements:
   | s_list = list(statement)            { s_list } ;
 
 statement:
-  | v = ID; ASSIGN; e = expression; SEMICOLON { Statement.Assign (v, e) }
-  | IF; e1 = expression; LBRACE; ss = statements; RBRACE; es = option(else_block)
+  | v = ID; ASSIGN; e = expr; SEMICOLON { Statement.Assign (v, e) }
+  | IF; e1 = expr; LBRACE; ss = statements; RBRACE; es = option(else_block)
     { Ifelse (e1, ss, es) }
-  | WHILE; e = expression; LBRACE; ss = statements; RBRACE
+  | WHILE; e = expr; LBRACE; ss = statements; RBRACE
     { While (e, ss) }
-  | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN; SEMICOLON
+  | name = ID; LPAREN; params = separated_list(COMMA, expr); RPAREN; SEMICOLON
     { Statement.Funccall {name = name; params = params} }
   ;
 
@@ -57,26 +61,34 @@ else_block:
   ELSE; LBRACE; ss = statements; RBRACE { ss };
 
 returnstat:
-  RETURN; e = expression; SEMICOLON { Statement.Return e } ;
+  RETURN; e = expr; SEMICOLON { Statement.Return e } ;
 
-expression:
-  | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN 
-    { Expression.Funccall {name = name; params = params} }
-  | e1 = expression; PLUS; e2 = expression 
-    { Expression.Plus (e1, e2) }
-  | e1 = expression; MINUS; e2 = expression 
-    { Expression.Minus (e1, e2) }
-  | e1 = expression; MULT; e2 = expression 
-    { Expression.Mult (e1, e2) }
-  | e1 = expression; DIV; e2 = expression 
-    { Expression.Div (e1, e2) }
-  | e1 = expression; EQUALITY; e2 = expression
-    { Expression.Equality (e1, e2) }
-  | e1 = expression; INEQUALITY; e2 = expression
-    { Expression.Inequality (e1, e2) }
-  | n = NUM { Expression.Val (Num (Number.number_of_string n)) }
-  | s = STR { Expression.Val (String s) }
-  | v = ID { Expression.Var v }
-  | b = BOOL { Expression.Val (Bool (bool_of_string b)) }
+expr:
+  | name = ID; LPAREN; params = separated_list(COMMA, expr); RPAREN 
+    { Expr.Funccall {name = name; params = params} }
+  | e1 = expr; PLUS; e2 = expr 
+    { Expr.Plus (e1, e2) }
+  | e1 = expr; MINUS; e2 = expr 
+    { Expr.Minus (e1, e2) }
+  | e1 = expr; MULT; e2 = expr 
+    { Expr.Mult (e1, e2) }
+  | e1 = expr; DIV; e2 = expr 
+    { Expr.Div (e1, e2) }
+  | e1 = expr; EQUALITY; e2 = expr
+    { Expr.Equality (e1, e2) }
+  | e1 = expr; INEQUALITY; e2 = expr
+    { Expr.Inequality (e1, e2) }
+  | e1 = expr; LTEQ; e2 = expr
+    { Expr.LTEQ (e1, e2) }
+  | e1 = expr; GTEQ; e2 = expr
+    { Expr.GTEQ (e1, e2) }
+  | e1 = expr; LT; e2 = expr
+    { Expr.LT(e1, e2) }
+  | e1 = expr; GT; e2 = expr
+    { Expr.GT (e1, e2) }
+  | n = NUM { Expr.Val (Num (Number.number_of_string n)) }
+  | s = STR { Expr.Val (String s) }
+  | v = ID { Expr.Var v }
+  | b = BOOL { Expr.Val (Bool (bool_of_string b)) }
   ;
 

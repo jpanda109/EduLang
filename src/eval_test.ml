@@ -86,21 +86,29 @@ and eval_expr ctx =
     | (Value.Bool b1, Value.Bool b2) -> b1 = b2
     | (Value.None, Value.None) -> true
     | _ -> raise (Failure "equality between different types") in
+  let comp_nums e1 e2 comp =
+    match (eval_expr ctx e1, eval_expr ctx e2) with
+    | (Value.Num n1, Value.Num n2) -> Value.Bool (comp n1 n2)
+    | _ -> raise (Failure "Comparison must be between numbers") in
   function
-  | Expression.Val v -> v
-  | Expression.Var s -> 
+  | Expr.Val v -> v
+  | Expr.Var s -> 
     begin match Context.find_var ctx s with
     | None -> raise (Unbound_variable s)
     | Some x -> x
     end
-  | Expression.Funccall {Funccall.name = name; Funccall.params = params} -> 
+  | Expr.Funccall {Funccall.name = name; Funccall.params = params} -> 
     eval_func ctx name params
-  | Expression.Plus (e1, e2) -> eval_arith Number.add e1 e2
-  | Expression.Minus (e1, e2) -> eval_arith Number.sub e1 e2
-  | Expression.Mult (e1, e2) -> eval_arith Number.mult e1 e2 
-  | Expression.Div (e1, e2) -> eval_arith Number.div e1 e2
-  | Expression.Equality (e1, e2) -> Value.Bool (compare e1 e2)
-  | Expression.Inequality (e1, e2) -> Value.Bool (not (compare e1 e2))
+  | Expr.Plus (e1, e2) -> eval_arith Number.add e1 e2
+  | Expr.Minus (e1, e2) -> eval_arith Number.sub e1 e2
+  | Expr.Mult (e1, e2) -> eval_arith Number.mult e1 e2 
+  | Expr.Div (e1, e2) -> eval_arith Number.div e1 e2
+  | Expr.Equality (e1, e2) -> Value.Bool (compare e1 e2)
+  | Expr.Inequality (e1, e2) -> Value.Bool (not (compare e1 e2))
+  | Expr.GTEQ (e1, e2) -> comp_nums e1 e2 (>=)
+  | Expr.LTEQ (e1, e2) -> comp_nums e1 e2 (<=)
+  | Expr.GT (e1, e2) -> comp_nums e1 e2 (>)
+  | Expr.LT (e1, e2) -> comp_nums e1 e2 (<)
 
 and eval_statement ctx = function
   | Statement.Ifelse (expr, if_ss, else_ss_opt) ->
