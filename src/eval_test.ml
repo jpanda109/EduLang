@@ -14,9 +14,9 @@ module Context = struct
       funcs: Funcdef.t String.Map.t
     }
 
-  let add_var c ~key ~data = { c with vars = Map.add c.vars key data }
+  let add_var c ~key ~data = { c with vars = Map.add c.vars ~key ~data }
 
-  let add_func c ~key ~data = { c with funcs = Map.add c.funcs key data }
+  let add_func c ~key ~data = { c with funcs = Map.add c.funcs ~key ~data }
 
   let find_var c = Map.find c.vars 
 
@@ -42,7 +42,7 @@ let parse_with_error lexbuf =
 let scoped_context ctx names vals =
   match List.zip names vals with
   | Some z ->
-    let accumulator a (name, v) = Context.add_var a name v in
+    let accumulator a (name, v) = Context.add_var a ~key:name ~data:v in
     let new_ctx = { ctx with Context.vars = String.Map.empty} in
     List.fold ~init:new_ctx ~f:accumulator z
   | None -> raise (Unimplemented "wrong number of params")
@@ -103,8 +103,6 @@ and eval_expr ctx =
   | Expression.Inequality (e1, e2) -> Value.Bool (not (compare e1 e2))
 
 and eval_statement ctx = function
-  | Statement.Assign (s, expr) ->
-    (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
   | Statement.Ifelse (expr, if_ss, else_ss_opt) ->
     begin match eval_expr ctx expr with
       | Value.Bool b -> 
@@ -117,6 +115,20 @@ and eval_statement ctx = function
           end
       | _ -> raise (Failure "If statement requires boolean expression")
     end
+  | Statement.While (expr, chunk) ->
+    begin match eval_expr ctx expr with
+    | Value.Bool b ->
+      if b
+      then 
+        begin match eval_chunk ctx chunk with
+        | (new_ctx, None) -> eval_statement new_ctx (Statement.While (expr, chunk))
+        | res -> res
+        end 
+      else (ctx, None)
+    | _ -> raise (Failure "While statement requires boolean expression")
+    end 
+  | Statement.Assign (s, expr) ->
+    (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
     ignore (eval_func ctx name exprs); (ctx, None)
   | Statement.Return expr -> (ctx, Some (eval_expr ctx expr))
@@ -129,14 +141,15 @@ and eval_chunk ctx = function
     end
   | [] -> (ctx, None)
 
-and eval_ast ctx prog =
-  let ctx = List.fold ~init:Context.empty ~f:(fun c f -> Context.add_func c f.Funcdef.name f) prog.Program.funcs in
+and eval_ast prog =
+  let addfunc c f = Context.add_func c ~key:f.Funcdef.name ~data:f in
+  let ctx = List.fold ~init:Context.empty ~f:(addfunc) prog.Program.funcs in
   ignore (eval_chunk ctx prog.Program.main)
 
 let () =
   let contents = In_channel.read_all "test.edl" in
   let lexbuf = Lexing.from_string contents in
   begin match parse_with_error lexbuf with
-    | Some ast -> eval_ast Context.empty ast
-    | None -> print_endline("failure")
+  | Some ast -> eval_ast ast
+  | None -> print_endline("failure")
   end

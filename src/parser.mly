@@ -9,6 +9,7 @@
 %token RETURN
 %token IF
 %token ELSE
+%token WHILE
 %token <string> ID
 %token <string> STR
 %token ASSIGN
@@ -46,6 +47,8 @@ statement:
   | v = ID; ASSIGN; e = expression; SEMICOLON { Statement.Assign (v, e) }
   | IF; e1 = expression; LBRACE; ss = statements; RBRACE; es = option(else_block)
     { Ifelse (e1, ss, es) }
+  | WHILE; e = expression; LBRACE; ss = statements; RBRACE
+    { While (e, ss) }
   | name = ID; LPAREN; params = separated_list(COMMA, expression); RPAREN; SEMICOLON
     { Statement.Funccall {name = name; params = params} }
   ;

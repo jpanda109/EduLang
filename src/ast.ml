@@ -22,6 +22,7 @@ end = Expression
 and Statement : sig
   type t =
     | Ifelse of Expression.t * t list * t list option
+    | While of Expression.t * t list
     | Assign of string * Expression.t
     | Funccall of Funccall.t
     | Return of Expression.t
