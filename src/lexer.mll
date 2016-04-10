@@ -17,6 +17,9 @@ rule read =
   | "if" { IF }
   | "else" { ELSE }
   | "while" { WHILE }
+  | "for" { FOR }
+  | "in" { IN }
+  | "to" { TO }
   | ['0'-'9']+'.'?['0'-'9']* { NUM (Lexing.lexeme lexbuf) }
   | ['a'-'z' 'A'-'Z' '_' '-']+ { ID (Lexing.lexeme lexbuf) }
   | ":=" { ASSIGN }

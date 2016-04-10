@@ -135,6 +135,7 @@ and eval_statement ctx = function
       else (ctx, None)
     | _ -> raise (Failure "While statement requires boolean expression")
     end 
+  | Statement.For (vname, e1, e2, ss) -> raise (Failure "Unimplemented For")
   | Statement.Assign (s, expr) ->
     (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 

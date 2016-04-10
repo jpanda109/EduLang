@@ -3,34 +3,22 @@
   open Ast
 
 %}
+%token MAIN FUNCDEF RETURN IF ELSE WHILE FOR IN TO EOF
 %token <string> NUM
-%token MAIN
-%token FUNCDEF
-%token RETURN
-%token IF
-%token ELSE
-%token WHILE
 %token <string> ID
 %token <string> STR
 %token ASSIGN
 %token <string> BOOL
 %token SEMICOLON
 %token COMMA
-%token LBRACE
-%token RBRACE
-%token LPAREN
-%token RPAREN
-%token PLUS
-%token MINUS
-%token MULT
-%token DIV
-%token EQUALITY
-%token INEQUALITY
-%token LTEQ
-%token GTEQ
-%token LT
-%token GT
-%token EOF
+%token LBRACE RBRACE
+%token LPAREN RPAREN
+%token PLUS MINUS MULT DIV
+%token EQUALITY INEQUALITY LTEQ GTEQ LT GT
+
+%nonassoc EQUALITY INEQUALITY LTEQ GTEQ LT GT
+%left PLUS MINUS
+%left MULT DIV
 
 %start <Ast.Program.t> prog
 
@@ -53,6 +41,8 @@ statement:
     { Ifelse (e1, ss, es) }
   | WHILE; e = expr; LBRACE; ss = statements; RBRACE
     { While (e, ss) }
+  | FOR; v = ID; IN; e1 = expr; TO; e2 = expr; LBRACE; ss = statements; RBRACE
+    { For (v, e1, e2, ss) }
   | name = ID; LPAREN; params = separated_list(COMMA, expr); RPAREN; SEMICOLON
     { Statement.Funccall {name = name; params = params} }
   ;

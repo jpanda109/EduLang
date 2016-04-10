@@ -27,6 +27,7 @@ and Statement : sig
   type t =
     | Ifelse of Expr.t * t list * t list option
     | While of Expr.t * t list
+    | For of string * Expr.t * Expr.t * t list
     | Assign of string * Expr.t
     | Funccall of Funccall.t
     | Return of Expr.t
