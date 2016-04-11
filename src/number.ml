@@ -13,3 +13,5 @@ let sub a b = a -. b
 let mult a b = a *. b
 
 let div a b = a /. b
+
+let lteq a b = a <= b

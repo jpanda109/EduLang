@@ -135,7 +135,21 @@ and eval_statement ctx = function
       else (ctx, None)
     | _ -> raise (Failure "While statement requires boolean expression")
     end 
-  | Statement.For (vname, e1, e2, ss) -> raise (Failure "Unimplemented For")
+  | Statement.For (vname, e1, e2, ss) ->
+    begin match (eval_expr ctx e1, eval_expr ctx e2) with
+      | (Value.Num n1, Value.Num n2) ->
+        if Number.lteq n1 n2
+        then
+          let incremented = Value.Num (Number.add n1 (Number.number_of_string "1")) in
+          let for_scope = Context.add_var ~key:vname ~data:(Value.Num n1) in
+          begin match eval_chunk (for_scope ctx) ss with
+          | (new_ctx, None) -> 
+            eval_statement (for_scope new_ctx) (Statement.For (vname, Expr.Val incremented, Expr.Val (Value.Num n2), ss))
+          | res -> res
+          end
+        else (ctx, None)
+    | (_, _) -> raise (Failure "For statement requires two numbers")
+    end
   | Statement.Assign (s, expr) ->
     (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 

@@ -13,3 +13,5 @@ val sub : t -> t -> t
 val mult : t -> t -> t
 
 val div : t -> t -> t
+
+val lteq : t -> t -> bool
