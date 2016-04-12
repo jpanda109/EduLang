@@ -33,6 +33,13 @@ and Statement : sig
     | Return of Expr.t
 end = Statement
 
+and Import : sig
+  type t =
+    { fname: string;
+      vname: string
+    }
+end = Import
+
 and Funccall : sig
   type t =
     { name: string;
@@ -50,7 +57,8 @@ end = Funcdef
 
 and Program : sig
   type t =
-    { main: Statement.t list;
+    { imports: Import.t list;
+      main: Statement.t list;
       funcs: Funcdef.t list
     }
 end = Program

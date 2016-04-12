@@ -20,6 +20,8 @@ rule read =
   | "for" { FOR }
   | "in" { IN }
   | "to" { TO }
+  | "import" { IMPORT }
+  | "as" { AS }
   | ['0'-'9']+'.'?['0'-'9']* { NUM (Lexing.lexeme lexbuf) }
   | ['a'-'z' 'A'-'Z' '_' '-']+ { ID (Lexing.lexeme lexbuf) }
   | ":=" { ASSIGN }

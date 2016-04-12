@@ -17,10 +17,25 @@ let parse_with_error lexbuf =
     fprintf stdout "%a: syntax error\n" print_position lexbuf;
     None
 
-let () =
-  let contents = In_channel.read_all "test.edl" in
+let eval_file filename =
+  let contents = In_channel.read_all filename in
   let lexbuf = Lexing.from_string contents in
   begin match parse_with_error lexbuf with
   | Some ast -> Eval.eval_ast ast
   | None -> print_endline("failure")
   end
+
+let spec =
+  let open Command.Spec in
+  empty
+    +> anon ("filename" %: file)
+
+let command =
+  Command.basic
+    ~summary:"evaluate an edl language file"
+    ~readme:(fun () -> "todo: readme")
+    spec
+    (fun filename () -> eval_file filename)
+
+let () =
+  Command.run command

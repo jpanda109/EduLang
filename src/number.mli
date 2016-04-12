@@ -14,4 +14,12 @@ val mult : t -> t -> t
 
 val div : t -> t -> t
 
+val eq : t -> t -> bool
+
 val lteq : t -> t -> bool
+
+val gteq : t -> t -> bool
+
+val lt : t -> t -> bool
+
+val gt : t -> t -> bool
