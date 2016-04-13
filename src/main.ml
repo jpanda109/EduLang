@@ -17,25 +17,42 @@ let parse_with_error lexbuf =
     fprintf stdout "%a: syntax error\n" print_position lexbuf;
     None
 
-let eval_file filename =
+let get_ast filename =
   let contents = In_channel.read_all filename in
   let lexbuf = Lexing.from_string contents in
   begin match parse_with_error lexbuf with
-  | Some ast -> Eval.eval_ast ast
-  | None -> print_endline("failure")
+  | Some ast -> ast
+  | None -> raise (Failure "couldn't parse file")
   end
 
-let spec =
-  let open Command.Spec in
-  empty
-    +> anon ("filename" %: file)
 
-let command =
+let eval_file filename =
+  get_ast filename |> Eval.eval_ast
+
+let transpile_file filename = get_ast filename |> Transpile.eval_prog stdout
+
+let eval =
   Command.basic
     ~summary:"evaluate an edl language file"
-    ~readme:(fun () -> "todo: readme")
-    spec
+    Command.Spec.(
+      empty
+        +> anon ("filename" %: file)
+    )
     (fun filename () -> eval_file filename)
+
+let transpile =
+  Command.basic
+    ~summary:"transpile an edl language file to javascript"
+    Command.Spec.(
+      empty
+        +> anon ("filename" %: file)
+    )
+    (fun filename () -> transpile_file filename)
+
+let command =
+  Command.group ~summary:"stuff"
+    [ "eval", eval;
+      "transpile", transpile ]
 
 let () =
   Command.run command

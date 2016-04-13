@@ -3,7 +3,7 @@
   open Ast
 
 %}
-%token MAIN FUNCDEF RETURN IF ELSE WHILE FOR IN TO IMPORT AS EOF
+%token MAIN FUNCDEF RETURN IF ELSE WHILE FOR IN TO EOF
 %token <string> NUM
 %token <string> ID
 %token <string> STR
@@ -24,12 +24,8 @@
 
 %%
 prog:
-  imports = list(import); defs1 = list(funcdef); MAIN; LBRACE; ss = statements; RBRACE; defs2 = list(funcdef); EOF; 
-    { { imports = imports; main = ss; funcs = defs1 @ defs2 } } ;
-
-import:
-  IMPORT; fname = STR; AS; vname = ID; SEMICOLON
-    { { fname = fname; vname = vname } } ;
+  defs1 = list(funcdef); MAIN; LBRACE; ss = statements; RBRACE; defs2 = list(funcdef); EOF; 
+    { { main = ss; funcs = defs1 @ defs2 } } ;
 
 funcdef:
   FUNCDEF; name = ID; LPAREN; params = separated_list(COMMA, ID); RPAREN; LBRACE; ss = statements; RBRACE

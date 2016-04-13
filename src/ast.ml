@@ -57,10 +57,14 @@ end = Funcdef
 
 and Program : sig
   type t =
-    { imports: Import.t list;
-      main: Statement.t list;
+    { main: Statement.t list;
       funcs: Funcdef.t list
     }
 end = Program
 
+let type_of_val v = function
+  | Value.Num _ -> 0
+  | Value.String _ -> 1
+  | Value.Bool _ -> 2
+  | Value.None -> 3
 
