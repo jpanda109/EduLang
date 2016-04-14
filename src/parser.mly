@@ -11,7 +11,7 @@
 %token <string> BOOL
 %token SEMICOLON
 %token COMMA
-%token LBRACE RBRACE
+%token LBRACE RBRACE LBRACK RBRACK
 %token LPAREN RPAREN
 %token PLUS MINUS MULT DIV
 %token EQUALITY INEQUALITY LTEQ GTEQ LT GT
@@ -80,5 +80,6 @@ expr:
   | s = STR { Expr.Val (String s) }
   | v = ID { Expr.Var v }
   | b = BOOL { Expr.Val (Bool (bool_of_string b)) }
+  | LBRACK; es = separated_list(COMMA, expr); RBRACK { ListInit es }
   ;
 

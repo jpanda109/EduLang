@@ -25,6 +25,8 @@ rule read =
   | ":=" { ASSIGN }
   | ';' { SEMICOLON }
   | ',' { COMMA }
+  | '[' { LBRACK }
+  | ']' { RBRACK }
   | '(' { LPAREN }
   | ')' { RPAREN }
   | '{' { LBRACE }

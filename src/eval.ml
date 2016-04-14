@@ -37,12 +37,17 @@ let rec eval_func ctx name params =
   | "print" ->
     begin match List.nth params 0 with
       | None -> raise (Unbound_function "wrong number of params")
-      | Some v -> begin match v with
-          | Value.Num n -> print_endline (Number.string_of_number n); Value.None
-          | Value.String s -> print_endline s; Value.None
-          | Value.Bool b -> print_endline (string_of_bool b); Value.None
-          | Value.None -> print_endline "None"; Value.None
-        end
+      | Some v ->
+          let rec print_val = function
+          | Value.Num n -> print_endline (Number.string_of_number n)
+          | Value.String s -> print_string s
+          | Value.Bool b -> print_string (string_of_bool b)
+          | Value.None -> print_string "None"
+          | Value.List l -> 
+            print_string "[" ; 
+            List.iter ~f:print_val l;
+            print_string "]"
+          in print_val v; print_endline ""; Value.None
     end
   | _ -> 
     begin match Context.find_func ctx name with
@@ -64,12 +69,19 @@ and eval_expr ctx =
       | (Value.Num n1, Value.Num n2) -> Value.Num (f n1 n2)
       | _ -> raise (Failure "arithmetic on non-number") in
   let compare e1 e2 =
-    match (eval_expr ctx e1, eval_expr ctx e2) with
-    | (Value.Num n1, Value.Num n2) -> n1 = n2
-    | (Value.String s1, Value.String s2) -> s1 = s2
-    | (Value.Bool b1, Value.Bool b2) -> b1 = b2
-    | (Value.None, Value.None) -> true
-    | _ -> raise (Failure "equality between different types") in
+    let rec comp_vals = function
+      | (Value.Num n1, Value.Num n2) -> n1 = n2
+      | (Value.String s1, Value.String s2) -> s1 = s2
+      | (Value.Bool b1, Value.Bool b2) -> b1 = b2
+      | (Value.None, Value.None) -> true
+      | (Value.List l1, Value.List l2) ->
+        begin match List.zip l1 l2 with
+        | None -> false
+        | Some zipped ->  List.fold ~init:false ~f:(fun acc (a, b) -> if comp_vals (a, b) then acc else false) zipped
+        end
+      | _ -> raise (Failure "equality between different types")
+    in
+    comp_vals (eval_expr ctx e1, eval_expr ctx e2) in
   let comp_nums e1 e2 comp =
     match (eval_expr ctx e1, eval_expr ctx e2) with
     | (Value.Num n1, Value.Num n2) -> Value.Bool (comp n1 n2)
@@ -93,6 +105,7 @@ and eval_expr ctx =
   | Expr.LTEQ (e1, e2) -> comp_nums e1 e2 (<=)
   | Expr.GT (e1, e2) -> comp_nums e1 e2 (>)
   | Expr.LT (e1, e2) -> comp_nums e1 e2 (<)
+  | Expr.ListInit (es) -> Value.List (List.map ~f:(eval_expr ctx) es)
 
 and eval_statement ctx = function
   | Statement.Ifelse (expr, if_ss, else_ss_opt) ->

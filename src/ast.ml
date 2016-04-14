@@ -3,6 +3,7 @@ module rec Value : sig
     | Num of Number.t
     | String of string
     | Bool of bool
+    | List of t list
     | None
 end = Value
 
@@ -21,6 +22,7 @@ and Expr : sig
     | GTEQ of t * t
     | LT of t * t
     | GT of t * t
+    | ListInit of t list
 end = Expr
 
 and Statement : sig
@@ -61,10 +63,4 @@ and Program : sig
       funcs: Funcdef.t list
     }
 end = Program
-
-let type_of_val v = function
-  | Value.Num _ -> 0
-  | Value.String _ -> 1
-  | Value.Bool _ -> 2
-  | Value.None -> 3
 
