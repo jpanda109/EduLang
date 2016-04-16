@@ -151,6 +151,7 @@ and eval_statement ctx = function
     (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
     ignore (eval_func ctx name exprs); (ctx, None)
+  | Statement.ListInit _ -> (ctx, None)
   | Statement.Return expr -> (ctx, Some (eval_expr ctx expr))
 
 and eval_chunk ctx = function

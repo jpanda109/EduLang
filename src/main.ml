@@ -29,8 +29,6 @@ let get_ast filename =
 let eval_file filename =
   get_ast filename |> Eval.eval_ast
 
-let transpile_file filename = get_ast filename |> Transpile.eval_prog stdout
-
 let eval =
   Command.basic
     ~summary:"evaluate an edl language file"
@@ -40,19 +38,7 @@ let eval =
     )
     (fun filename () -> eval_file filename)
 
-let transpile =
-  Command.basic
-    ~summary:"transpile an edl language file to javascript"
-    Command.Spec.(
-      empty
-        +> anon ("filename" %: file)
-    )
-    (fun filename () -> transpile_file filename)
-
-let command =
-  Command.group ~summary:"stuff"
-    [ "eval", eval;
-      "transpile", transpile ]
+let command = eval
 
 let () =
   Command.run command

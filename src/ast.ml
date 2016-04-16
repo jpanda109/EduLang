@@ -32,15 +32,9 @@ and Statement : sig
     | For of string * Expr.t * Expr.t * t list
     | Assign of string * Expr.t
     | Funccall of Funccall.t
+    | ListInit of Expr.t list
     | Return of Expr.t
 end = Statement
-
-and Import : sig
-  type t =
-    { fname: string;
-      vname: string
-    }
-end = Import
 
 and Funccall : sig
   type t =
