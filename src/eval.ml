@@ -31,24 +31,25 @@ let scoped_context ctx names vals =
     List.fold ~init:new_ctx ~f:accumulator z
   | None -> raise (Unimplemented "wrong number of params")
 
-let rec eval_func ctx name params =
-  let params = List.map params ~f:(fun p -> eval_expr ctx p) in
+let rec eval_func ctx name eparams =
+  let params = List.map eparams ~f:(fun p -> eval_expr ctx p) in
   match name with
   | "print" ->
     begin match List.nth params 0 with
       | None -> raise (Unbound_function "wrong number of params")
       | Some v ->
           let rec print_val = function
-          | Value.Num n -> print_endline (Number.string_of_number n)
+          | Value.Num n -> print_string (Number.string_of_number n)
           | Value.String s -> print_string s
           | Value.Bool b -> print_string (string_of_bool b)
           | Value.None -> print_string "None"
           | Value.List l -> 
             print_string "[" ; 
-            List.iter ~f:print_val l;
+            List.iter ~f:(fun e -> print_val e; print_string ", ") l;
             print_string "]"
           in print_val v; print_endline ""; Value.None
     end
+
   | _ -> 
     begin match Context.find_func ctx name with
     | Some fdef ->
@@ -185,7 +186,29 @@ and eval_statement ctx = function
         end
     end
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
-    ignore (eval_func ctx name exprs); (ctx, None)
+    begin match name with
+    | "append" -> 
+      begin match (List.nth exprs 0, List.nth exprs 1) with
+      | (None, _) -> raise (Unbound_function "wrong number of params")
+      | (_, None) -> raise (Unbound_function "wrong number of params")
+      | (Some e1, Some e2) ->
+        begin match e1 with
+        | Expr.Var vc ->
+          begin match vc with
+          | VarCall.Reg s -> 
+            begin match Context.find_var ctx s with
+            | Some (Value.List l) ->
+              let nlist = l @ [eval_expr ctx e2] in
+              (Context.add_var ctx ~key:s ~data:(Value.List nlist), None)
+            | _ -> raise (Unbound_function "append only on list")
+            end
+          | VarCall.List _ -> raise (Unbound_function "append on list index not supported")
+          end
+        | _ -> raise (Unbound_function "append should be on list var")
+        end 
+      end
+      | _ -> ignore (eval_func ctx name exprs); (ctx, None)
+    end 
   | Statement.ListInit _ -> (ctx, None)
   | Statement.Return expr -> (ctx, Some (eval_expr ctx expr))
 

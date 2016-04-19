@@ -1,5 +1,5 @@
 main {
 	x := [1, 2];
-	x[0] := 4;
-	print(x[0]);
+	append(x, 3);
+	print(x);
 }
