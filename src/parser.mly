@@ -36,7 +36,9 @@ statements:
   | s_list = list(statement)            { s_list } ;
 
 statement:
-  | v = ID; ASSIGN; e = expr; SEMICOLON { Statement.Assign (v, e) }
+  | v = ID; ASSIGN; e = expr; SEMICOLON { Statement.Assign (VarCall.Reg v, e) }
+  | v = ID; LBRACK; ie = expr; RBRACK; ASSIGN; e = expr
+    { Statement.Assign (VarCall.List (v, ie), e) }
   | IF; e1 = expr; LBRACE; ss = statements; RBRACE; es = option(else_block)
     { Ifelse (e1, ss, es) }
   | WHILE; e = expr; LBRACE; ss = statements; RBRACE
@@ -78,7 +80,8 @@ expr:
     { Expr.GT (e1, e2) }
   | n = NUM { Expr.Val (Num (Number.number_of_string n)) }
   | s = STR { Expr.Val (String s) }
-  | v = ID { Expr.Var v }
+  | v = ID { Expr.Var (VarCall.Reg v) }
+  | v = ID; LBRACK; ie = expr; RBRACK { Expr.Var (VarCall.List (v, ie)) }
   | b = BOOL { Expr.Val (Bool (bool_of_string b)) }
   | LBRACK; es = separated_list(COMMA, expr); RBRACK { ListInit es }
   ;

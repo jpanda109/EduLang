@@ -88,10 +88,26 @@ and eval_expr ctx =
     | _ -> raise (Failure "Comparison must be between numbers") in
   function
   | Expr.Val v -> v
-  | Expr.Var s -> 
-    begin match Context.find_var ctx s with
-    | None -> raise (Unbound_variable s)
-    | Some x -> x
+  | Expr.Var vc -> 
+    begin match vc with
+    | VarCall.Reg s ->
+      begin match Context.find_var ctx s with
+      | None -> raise (Unbound_variable s)
+      | Some x -> x
+      end
+    | VarCall.List (s, ie) ->
+      begin match Context.find_var ctx s with
+        | None -> raise (Unbound_variable s)
+        | Some x ->
+          begin match x with
+            | Value.List l ->
+              begin match eval_expr ctx ie with
+                | Value.Num n -> List.nth_exn l (Number.to_int n)
+                | _ -> raise (Failure "index must be a number")
+              end
+            | _ -> raise (Failure "not a list")
+          end
+      end
     end
   | Expr.Funccall {Funccall.name = name; Funccall.params = params} -> 
     eval_func ctx name params
@@ -147,8 +163,11 @@ and eval_statement ctx = function
         else (ctx, None)
     | (_, _) -> raise (Failure "For statement requires two numbers")
     end
-  | Statement.Assign (s, expr) ->
-    (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
+  | Statement.Assign (vc, expr) ->
+    begin match vc with
+      | VarCall.Reg s -> (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
+      | VarCall.List (s, ie) -> raise (Failure "List assign not implemented")
+    end
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
     ignore (eval_func ctx name exprs); (ctx, None)
   | Statement.ListInit _ -> (ctx, None)

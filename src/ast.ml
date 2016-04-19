@@ -10,7 +10,7 @@ end = Value
 and Expr : sig 
   type t =
     | Val of Value.t
-    | Var of string
+    | Var of VarCall.t
     | Funccall of Funccall.t
     | Plus of t * t
     | Minus of t * t
@@ -30,11 +30,17 @@ and Statement : sig
     | Ifelse of Expr.t * t list * t list option
     | While of Expr.t * t list
     | For of string * Expr.t * Expr.t * t list
-    | Assign of string * Expr.t
+    | Assign of VarCall.t * Expr.t
     | Funccall of Funccall.t
     | ListInit of Expr.t list
     | Return of Expr.t
 end = Statement
+
+and VarCall : sig
+  type t =
+    | Reg of string
+    | List of string * Expr.t
+end = VarCall
 
 and Funccall : sig
   type t =

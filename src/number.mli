@@ -6,6 +6,8 @@ val number_of_string : string -> t
 
 val string_of_number : t -> string
 
+val to_int : t -> int
+
 val add : t -> t -> t
 
 val sub : t -> t -> t

@@ -6,6 +6,8 @@ let number_of_string = Float.of_string
 
 let string_of_number = Float.to_string
 
+let to_int = Float.to_int
+
 let add a b = a +. b
 
 let sub a b = a -. b
