@@ -37,7 +37,7 @@ statements:
 
 statement:
   | v = ID; ASSIGN; e = expr; SEMICOLON { Statement.Assign (VarCall.Reg v, e) }
-  | v = ID; LBRACK; ie = expr; RBRACK; ASSIGN; e = expr
+  | v = ID; LBRACK; ie = expr; RBRACK; ASSIGN; e = expr; SEMICOLON
     { Statement.Assign (VarCall.List (v, ie), e) }
   | IF; e1 = expr; LBRACE; ss = statements; RBRACE; es = option(else_block)
     { Ifelse (e1, ss, es) }

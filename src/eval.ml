@@ -166,7 +166,23 @@ and eval_statement ctx = function
   | Statement.Assign (vc, expr) ->
     begin match vc with
       | VarCall.Reg s -> (Context.add_var ctx ~key:s ~data:(eval_expr ctx expr), None)
-      | VarCall.List (s, ie) -> raise (Failure "List assign not implemented")
+      | VarCall.List (s, ie) ->
+        begin match Context.find_var ctx s with
+        | None -> raise (Unbound_variable "list doesn't exist")
+        | Some v -> 
+          begin match v with
+            | Value.List l ->
+              begin match eval_expr ctx ie with
+                | Value.Num n ->
+                  let index = Number.to_int n in
+                  let nlist = 
+                    List.mapi ~f:(fun i e -> if i = index then eval_expr ctx expr else e) l in
+                  (Context.add_var ctx ~key:s ~data:(Value.List nlist), None)
+                | _ -> raise (Failure "index must be number")
+              end 
+            | _ -> raise (Failure "list must be indexed")
+          end
+        end
     end
   | Statement.Funccall { Funccall.name = name; Funccall.params = exprs} -> 
     ignore (eval_func ctx name exprs); (ctx, None)
